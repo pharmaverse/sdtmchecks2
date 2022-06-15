@@ -28,6 +28,7 @@
 #'  AEDTHDTC = c("01FEB2017",NA,"02FEB2017","03FEB2017",NA),
 #'  AESDTH = c("Y","Y","N","Y",NA),
 #'  AETOXGR = c("5","5","5",NA,NA),
+#'  OTHERVAR = NA,
 #'  stringsAsFactors = FALSE
 #' )
 #'
@@ -47,7 +48,7 @@
 
 ## Check for missing death dates when AE outcomes are fatal.
 
-check_ae_fatal <- function(AE,prepoc=identity,...){
+check_ae_fatal <- function(AE,preproc=identity,...){
   
   ###First check that required variables exist and return a message if they don't
   if(AE %lacks_any% c("USUBJID", "AEDECOD", "AESTDTC","AEDTHDTC", "AEOUT", "AESDTH")){
@@ -58,17 +59,27 @@ check_ae_fatal <- function(AE,prepoc=identity,...){
     
     if(AE %has_any% "AETOXGR"){
       # leave only variables on which we want to check for fatalities and their corresponding death dates
-      ae0 <- subset(AE,,c( "USUBJID", "AEDECOD", "AESTDTC","AEDTHDTC", "AEOUT", "AETOXGR","AESDTH"))
+      ae0 <- AE[,c( "USUBJID", "AEDECOD", "AESTDTC", "AEDTHDTC", "AEOUT", "AETOXGR", "AESDTH")]
       
       # check if AEOUT=='FATAL' that there is a corresponding AEDTHDTC, death date
-      mydf <- subset(ae0,ae0$AEOUT=='FATAL' & (is_sas_na(ae0$AEDTHDTC) | ae0$AETOXGR !=5 | is_sas_na(ae0$AETOXGR) | ae0$AESDTH != "Y" | is_sas_na(ae0$AESDTH)),c("USUBJID", "AEDECOD", "AESTDTC","AEDTHDTC", "AEOUT","AETOXGR","AESDTH"))
+      mydf <- subset(ae0, AEOUT=='FATAL' & (is_sas_na(AEDTHDTC) | 
+                                                  AETOXGR !=5 | 
+                                                  is_sas_na(AETOXGR) | 
+                                                  AESDTH != "Y" | 
+                                                  is_sas_na(AESDTH)),
+                     )
+      
       rownames(mydf)=NULL
       
     }else{
-      ae0 <- subset(AE,,c( "USUBJID", "AEDECOD", "AESTDTC","AEDTHDTC", "AEOUT", "AESDTH"))
+      ae0 <- AE[,c( "USUBJID", "AEDECOD", "AESTDTC", "AEDTHDTC", "AEOUT", "AESDTH")]
       
       # check if AEOUT=='FATAL' that there is a corresponding AEDTHDTC, death date
-      mydf <- subset(ae0,ae0$AEOUT=='FATAL' & (is_sas_na(ae0$AEDTHDTC) | ae0$AESDTH != "Y" | is_sas_na(ae0$AESDTH)),c("USUBJID", "AEDECOD", "AESTDTC","AEDTHDTC", "AEOUT","AESDTH"))
+      mydf <- subset(ae0, AEOUT=='FATAL' & (is_sas_na(AEDTHDTC) | 
+                                                 AESDTH != "Y" | 
+                                                 is_sas_na(AESDTH)),
+                     )
+      
       rownames(mydf)=NULL
       
     }
