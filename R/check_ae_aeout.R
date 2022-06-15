@@ -5,6 +5,8 @@
 #' outcome (AEOUT) is fatal
 #'
 #' @param AE Adverse Events SDTM dataset with variables USUBJID, AEDTHDTC, AEOUT
+#' @param preproc An optional company specific preprocessing script
+#' @param ... Other arguments passed to methods
 #'
 #' @return boolean value if check failed or passed with 'msg' attribute if the
 #'   test failed
@@ -38,7 +40,7 @@
 #'
 #' }
 
-check_ae_aeout <- function(AE) {
+check_ae_aeout <- function(AE,preproc=identity,...) {
   
   if (AE %lacks_any% c("USUBJID", "AEDTHDTC", "AEOUT")) {
     
